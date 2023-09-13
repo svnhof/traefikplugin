@@ -1,0 +1,36 @@
+name: Go
+
+on:
+  push:
+  pull_request:
+
+jobs:
+
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.19
+
+      - run: go mod download && go mod tidy && go mod verify
+      - run: git --no-pager diff && [[ $(git --no-pager diff --name-only | wc -l) = 0 ]]
+        shell: bash
+
+      - run: go vet ./...
+      - run: git --no-pager diff && [[ $(git --no-pager diff --name-only | wc -l) = 0 ]]
+        shell: bash
+
+      - run: go fmt ./...
+      - run: git --no-pager diff && [[ $(git --no-pager diff --name-only | wc -l) = 0 ]]
+        shell: bash
+
+      - run: go test ./...
+      - run: git --no-pager diff && [[ $(git --no-pager diff --name-only | wc -l) = 0 ]]
+        shell: bash
+
+      - run: go build -v ./...
